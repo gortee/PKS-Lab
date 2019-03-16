@@ -15,14 +15,31 @@ Let's start with a simple container from docker hub (https://hub.docker.com/) th
 
 Run the following command:
 
-    docker exec -it my_container ping -w3 google.com
-
-The output from this command should look something like this:
+    docker run -dit --name my_container alpine ash
 
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/D1.png)
 
-If you examine this command you learn a few things 
+This will start a container called my_container running the alpine image with it's shell ash started.  Let's examine the command line:
+-dit : d=detached i=interactive t=terminal session
+--name : name of container for easy reference
+alpine : image name from docker hub if not found locally https://hub.docker.com/_/alpine
+ash : paramter to tell it to start the ash shell which gives us the potential of interactivity
 
-exec : tells us to execute a command inside the container
--it : i = interactive t = tty terminal this gives us a interactive terminal
-my_container : container name
+We can see it as running and get it's container ID with the following command
+
+    docker ps
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D2.png)
+
+Now it's execute a ping inside this container.
+
+    docker exec -it my_container ping -w3 google.com 
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D3.png)
+
+Let's examine this command line:
+-it : i=interactive t=terminal
+my_container : user friendly name
+ping -w3 google.com : send three pings to google.com
+
+Notice is has output to SDOUT
