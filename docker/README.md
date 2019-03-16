@@ -11,5 +11,6 @@ Run the following command:
 
 The output from this command should look something like this:
 
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D1.png)
 
 If you examine this command you learn a few things
