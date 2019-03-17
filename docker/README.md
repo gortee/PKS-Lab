@@ -20,10 +20,14 @@ Run the following command:
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/D1.png)
 
 This will start a container called my_container running the alpine image with it's shell ash started.  Let's examine the command line:
--dit : d=detached i=interactive t=tty  this allows us to run commands in the container
---name : name of container for easy reference
-alpine : image name from docker hub if not found locally https://hub.docker.com/_/alpine
-ash : paramter to tell it to start the ash shell which gives us the potential of interactivity
+
+`-dit : d=detached i=interactive t=tty  this allows us to run commands in the container`
+
+`--name : name of container for easy reference`
+
+`alpine : image name from docker hub if not found locally https://hub.docker.com/_/alpine`
+
+ `ash : paramter to tell it to start the ash shell which gives us the potential of interactivity`
 
 We can see it as running and get it's container ID with the following command
 
@@ -38,9 +42,12 @@ Now it's execute a ping inside this container.
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/D3.PNG)
 
 Let's examine this command line:
--it : i=interactive t=tty this allows us to run commands in the container
-my_container : user friendly name
-ping -w3 google.com : send three pings to google.com
+
+`-it : i=interactive t=tty this allows us to run commands in the container`
+
+`my_container : user friendly name`
+
+`ping -w3 google.com : send three pings to google.com`
 
 Notice is has output from the ping is to standard out in otherwords outside the container.  This is a key element of 12 factor applications that logging and error should go to standard out.   Having some method to capture this output is critical.  
 
@@ -71,10 +78,16 @@ Let's now create a web server container that forwards container port 80 to docke
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/D7.PNG)
 
 Lets examine this command line
-run : run a container
--d : detached 
--p 8080:80 : expose port 80 on the container via port 8080 on the docker host
---name my_web_server : user friendly name of container
-nginx : docker hub image to use
+
+`run : run a container`
+
+`-d : detached`
+
+`-p 8080:80 : expose port 80 on the container via port 8080 on the docker host`
+
+`--name my_web_server : user friendly name of container`
+
+`nginx : docker hub image to use`
+
 
 
