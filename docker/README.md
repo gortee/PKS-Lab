@@ -11,7 +11,7 @@ Let's clone a repository that will contain all the code for your labs
 
 You can browse the the reposity by changing into the directory or by visiting the site.  (`cd PKS-Lab`)
 
-Let's start with a simple container from docker hub (https://hub.docker.com/) that will ping google.com three times then exit
+Let's start with a simple container from docker hub (https://hub.docker.com/) 
 
 Run the following command:
 
@@ -89,5 +89,20 @@ Lets examine this command line
 
 `nginx : docker hub image to use`
 
+You can visit port 8080 on URL to see if nginx is working
 
+By default both of these containers are connected to the bridge docker network.   (Docker creates three networks when started: bridge, host, none)  Everything inside a network is able to communicate with each other and the host is able to communicate with all.   
 
+Let's inspect the bridge network to understand the containers IP addresses
+
+    docker network inspect bridge
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D8.PNG)
+
+You can see that my_web_server and my_container both have ip addresses in 172.17.0.0/16 (or some other address randomly assigned by your system)
+
+Let's create a new network for some containers
+
+    docker network create new_name
+    
+a
