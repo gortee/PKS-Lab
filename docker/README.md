@@ -259,8 +259,7 @@ You can see the current images on your host:
  Press CTRL-C to kill the container.   
  
  ![DockerOutput](https://github.com/gortee/pictures/blob/master/D26.PNG)
- 
- I suspect you can imagine how a system like this could cause some DoS style attacks when distributed widely across a bot network. 
+  
 
  Let's create a much more complex image.  We will create a python based web server with a custom static landing page.  
  
