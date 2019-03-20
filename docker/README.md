@@ -220,5 +220,82 @@ Looking inside the Dockerfile we have the following:
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/D23.PNG)
 
 Breaking it down
+
+
+FROM ubuntu:latest
+ - Use the ubuntu base operating system with the tag of latest
+
+
+RUN apt-get update -q && apt-get install -qy iputils-ping
+ - Execute the command listed above that updates the operating system and installs iputils-ping 
+ 
+ 
+CMD ["ping", "google.com"]
+ - Run the command ping google.com forever
+ 
+ So our basic container will use the latest ubunutu fully patched at time of image creation and ping google.com forever while running.   It sounds like a great container let's build the image.  We are going to call our image pinggoogle:
+ 
+    docker build -t pinggoogle .
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D24.PNG)
+
+Looking at the output above you can see how it is built in layers.  
+ - Step 1 : Use ubuntu:latest which downloads the image if required and starts it
+ - Step 2 : Run the command on the new blank ubuntu container
+ - Step 3 : Run command
+ - Remove intermediate containers used
+ - Build image and tag it
+ 
+You can see the current images on your host:
+
+    docker images
     
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/D25.PNG)
+ 
+ As you can see image c02de73db6b9 was created and is 115MB in side.   This is the power of docker the whole container is only 115MB in side so it can be downloaded and started very quickly.   Let's run our new image:
+ 
+     docker run pinggoogle
+     
+ Press CTRL-C to kill the container.   
+ 
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/D26.PNG)
+ 
+ I suspect you can imagine how a system like this could cause some DoS style attacks when distributed widely across a bot network. 
+
+ Let's create a much more complex image.  We will create a python based web server with a custom static landing page.  
+ 
+     cd 
+     mkdir second
+     cd second
+     cp ~/PKS-Lab/docker/second/Dockerfile ./
+     
+The contents of this Dockerfile are far more complex:
+
+    cat Dockerfile
+    
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/D27.PNG)
+ 
+In detail:
+ - LABEL's are metadata that can be used to identify the system
+ - ENV are environment variables passed to the operating system
+ - RUN command is very similar to above
+ - EXPOSE command provide what port to listen on the container
+ - RUN command make a directory and add groups and user for the webserver
+ - VOLUME defines a directory that should exist outside the container (persistent on this docker host)
+ - WORKDIR provides a working directory
+ - COPY moves a local file called text.txt into the path
+ - ADD content from the internet into the image web directory
+ - RUN command to change ownership of the web content
+ - USER runs everything post this command as this user
+ - CMD starts the webserver on port 8000
+ 
+Create a local file test.txt to be inserted into your webserver
+ 
+    echo "Some text you choose" > test.txt
+
+Let's build the image
+
+    docker build -t pweb . 
+    
+This compile should require multiple steps and downloading for your image
  
