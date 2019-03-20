@@ -261,7 +261,7 @@ You can see the current images on your host:
  ![DockerOutput](https://github.com/gortee/pictures/blob/master/D26.PNG)
   
 
- Let's create a much more complex image.  We will create a python based web server with a custom static landing page.  
+ Let's create a more complex image.  We will create a nginx based web server with a custom static page.  
  
      cd 
      mkdir second
@@ -275,26 +275,88 @@ The contents of this Dockerfile are far more complex:
  ![DockerOutput](https://github.com/gortee/pictures/blob/master/D27.PNG)
  
 In detail:
- - LABEL's are metadata that can be used to identify the system
- - ENV are environment variables passed to the operating system
- - RUN command is very similar to above
- - EXPOSE command provide what port to listen on the container
- - RUN command make a directory and add groups and user for the webserver
- - VOLUME defines a directory that should exist outside the container (persistent on this docker host)
- - WORKDIR provides a working directory
- - COPY moves a local file called text.txt into the path
- - ADD content from the internet into the image web directory
- - RUN command to change ownership of the web content
- - USER runs everything post this command as this user
- - CMD starts the webserver on port 8000
+ - FROM the nginx:latest image
+ - RUN a bunch of apt-get commands plus insall openssl
+ - ENV set an environment vairable which can be rewritten on the command line if needed
+ - COPY local file into the destination location on the image
  
-Create a local file test.txt to be inserted into your webserver
+Create a local file index.html to be inserted into your webserver
  
-    echo "Some text you choose" > test.txt
+    echo "This is inside the container" > index.html
 
 Let's build the image
 
     docker build -t pweb . 
     
 This compile should require multiple steps and downloading for your image
+ 
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/D28.PNG)
+ 
+ Using the docker images command we can see our new image:
+ 
+     docker images
+     
+  ![DockerOutput](https://github.com/gortee/pictures/blob/master/D29.PNG)
+  
+  You can see pweb is available to use and 127MB's.   You could then upload the image to docker hub or your own private repository (like Harbor) for reuse outside this single docker host.   Let's deploy and test pweb.  We are going to deploy it on the dev_network exposing internal port 80 on external 8080:
+  
+      docker run --name my_new_web -d -p 8000:80 pweb
+      
+ Visit cli-vm.corp.local:8000/index.html to see your file being served up.   
+ 
+ Dockerfile can have many levels of complexity in order to create the image you want.   nginx is really a previously layer image of Ubuntu.   
+ 
+# Clean up and Wordpress
+
+For the final section in the docker lab we are going to clean up all currently running containers and images and run a new wordpress install.   Wordpress is being used to demostrate the challenges in creating multi-container solutions on docker.   
+
+First lets stop all running containers:
+
+    docker kill $(docker ps -q)
+    docker ps
+    
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/D30.PNG)
+  
+  Remove all shutdown containers
+  
+      docker rm $(docker ps -a -q)
+      docker ps -a
+      
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/D31.PNG)
+ 
+ Or hit it all with this command including networks
+ 
+     docker system prune -a
+     
+  ![DockerOutput](https://github.com/gortee/pictures/blob/master/D32.PNG)
+  
+  Now we are all cleaned up and ready for a wordpress install (you just deleted the pweb image you created without any backup)
+  
+  Create a user network for wordpress
+   
+      docker network create wordpress
+      
+  Create a mysql container (normally you would not put passwords on the command line because they are stored in plain text)
+  
+      docker run --name db --network wordpress -e MYSQL_ROOT_PASSWORD=somepassword -d mysql:5.7
+      
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D33.PNG)
+  
+  Create a apacheweb server with wordpress
+  
+      docker run --name web -p 888:80 --network wordpress -e WORDPRESS_DB_HOST=db:3306 -e WORDPRESS_DB_USER=root -e WORDPRESS_DB_PASSWORD=somepassword -d wordpress 
+      
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D34.PNG)
+
+Wordpress should now be running on cli-vm.corp.local:888 visit it to see the wordpress configuration page.   When these containers exit everything will be lost.   
+
+Before you stop this lab issue the following command to clean up everything
+
+     docker system prune -a
+     
+# Challenge Activity
+If you have time and want a challenge do the following
+ - Build a apache web server listing on port 80 serving up php content
+ - You can copy the index.php to serve up from ~/PKS-Lab/docker/challenge
+ 
  
