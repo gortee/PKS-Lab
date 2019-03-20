@@ -203,6 +203,16 @@ Being able to reference the container via name has a huge benefit in dynamic env
 # Docker-Image Creation
 One function inside docker is the creation of your own images.   An image is a layer of things compiled into a very small package for distribution.  You define what should be in a image with a text file called Dockerfile.  Dockerfile definition is in layers which are loosely coupled then compiled together into a image by docker.   Is to use it in action.  You can find a complete list of command you can use in a Dockerfile at this site: https://docs.docker.com/engine/reference/builder/
 
+Let's create a blank directory for our new Dockerfile
 
+    cd
+    mkdir first
+    cd  first
+
+In order to avoid challenges with mistyping commands the Dockerfile has already been created.  Let's copy it from the clone git repository we downloaded.   
+
+     cp ~/PKS-Lab/docker/first/Dockerfile .
+   
+Le   
     
  
