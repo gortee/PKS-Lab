@@ -1,7 +1,7 @@
 # Docker-Lab
-In this lab you will learn some basic commands of Docker to help you understand how to operate Docker as a building block of Kubernetes.
+In this lab you will learn some basic commands of Docker to help you understand how to operate Docker as a building block of Kubernetes.  IP addresses in this tutorial will change in your environment and you may have to put your correct IP address into the commands for them to work.
 
-Start by opening putty and logging into the ....
+Start by opening putty and logging into the the cli-vm.
 
 Let's clone a repository that will contain all the code for your labs
 
@@ -49,7 +49,7 @@ Let's examine this command line:
 
 `ping -w3 google.com : send three pings to google.com`
 
-Notice is has output from the ping is to standard out in otherwords outside the container.  This is a key element of 12 factor applications that logging and error should go to standard out.   Having some method to capture this output is critical.  
+Notice is has output from the ping is to standard out in otherwords outside the container.  This is a key element of 12 factor applications that logging and error should go to standard out.   Having some method to capture this output is critical or it's lost.  12 factor applications should always log to stardard out (console).   
 
 Let's review the network settings for our containers.  
    
@@ -70,6 +70,30 @@ As you can see the container has an assigned IP address with a gateway you shoul
 You can end your ping with CTRL-C
 
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/D6.PNG)
+
+With containers you are able to start and stop them.   Let's try stopping my_container:
+
+    docker stop my_container
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D15.PNG)
+
+Let's see the status of my_container
+
+    docker ps
+ 
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/D16.PNG)
+ 
+ As you can see my_container is not running.   It is still available and if I tried to create another container called my_container it would fail because it's just not currently running.  You can see all containers with this command:
+ 
+     docker ps -a
+     
+  ![DockerOutput](https://github.com/gortee/pictures/blob/master/D17.PNG)
+  
+You can restart the container with `docker start my_container` or remove it completely with `docker rm container_id`  in my case I want it running again:
+
+    docker start my_container
+    
+  ![DockerOutput](https://github.com/gortee/pictures/blob/master/D18.PNG)
 
 Let's now create a web server container that forwards container port 80 to docker host port 8080 (making port 80 on the container accessable on the real network)  For this we will use a ngnix container.  
 
@@ -101,8 +125,84 @@ Let's inspect the bridge network to understand the containers IP addresses
 
 You can see that my_web_server and my_container both have ip addresses in 172.17.0.0/16 (or some other address randomly assigned by your system)
 
-Let's create a new network for some containers
+# Docker-Networking
+A user defined network has the following characteristics that the default bridge network (bridge) does not have:
+ - Containers on the same bridge automatically expose all ports to each other and no ports to outside world
+ - Containers on the same bridge can access each other by IP or name/alias
+ - Containers can connect and disconnect from user-defined networks on the fly while running
+ - Each user defined network has it's own bridge network that can be configured 
+ 
+Let's create a new network for some containers by creating a user defined bridge
 
-    docker network create new_name
+    docker network create dev_network
     
-a
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D9.PNG)
+
+We can list currently created networks with 
+
+    docker network ls
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D10.PNG)
+
+As shown we have now created a new network for docker.   When you create a new network you create a new bridge.   All containers on the same bridge automatically expose all ports to each other and no ports to the outside world.   Let's look at the details and compare the bridge and dev_netwoks:
+
+    docker network inspect bridge
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D11.PNG)
+
+Notice that the default bridge has a subnet of 172.17.0.0/16 (your may be different) and lots of configurable settings.  
+
+Examine dev_network
+
+    docker network inspect dev_network
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D12.PNG)
+
+Notice a few differences with the output first it's a different randomly assigned network (172.21.0.0/16 in my case) and it has a default gateway assigned.  
+
+Let's test some of the properties of our dev_network by deploying some containers to it:
+
+    docker run -dit --name ping1 --network dev_network alpine ash
+    docker run -dit --name ping2 --network dev_network alpine ash
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D13.PNG)
+
+Let's examine the dev_network in detail
+
+    docker network inspect dev_network
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D14.PNG)
+
+As you can see we now have two containers attached to the dev_network ping1(172.21.0.2/16) & ping2(172.21.0.3/16) Let's test communication between the containers.  Let's attach to the console one ping1 (which is possible because it's running the ash shell) keep in mind that in order to detach from the console you will want to use CTRL-P+CTRL-Q (failure to do this control sequence will terminate the container)
+
+    docker container attach ping1
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D19.PNG)
+
+Let's try to ping the second container by name 
+
+    ping -c 3 ping2
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D20.PNG)
+
+Let's try to ping by IP address
+
+    ping -c 3 172.21.0.3
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D21.PNG)
+
+Being able to reference the container via name has a huge benefit in dynamic environments.   Let's try to ping one of the containers on our bridge network my_container (172.17.0.2/16) or my_web_server (172.17.0.3/16).  
+
+    ping -c 3 172.17.0.2
+    ping -c my_container
+    
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/D22.PNG)
+ 
+ As you can see we have no path to access other containers unless they are exposing a port to the outside world.  my_web_server is exposing port 80 on the worker nodes port 8080 which would be accessable since the container and NAT to internet.   Networking exists only on a single host not across a clusters inside default docker which creates a lot of scalability challenges.   
+ 
+# Docker-Image Creation
+One function inside docker is the creation of your own images.   An image is a layer of things compiled into a very small package for distribution.  You define what should be in a image with a text file called Dockerfile.  Dockerfile definition is in layers which are loosely coupled then compiled together into a image by docker.   Is to use it in action.  You can find a complete list of command you can use in a Dockerfile at this site: https://docs.docker.com/engine/reference/builder/
+
+
+    
+ 
