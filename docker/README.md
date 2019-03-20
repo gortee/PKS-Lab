@@ -213,6 +213,12 @@ In order to avoid challenges with mistyping commands the Dockerfile has already 
 
      cp ~/PKS-Lab/docker/first/Dockerfile .
    
-Le   
+Looking inside the Dockerfile we have the following:
+
+     cat Dockerfile
+     
+![DockerOutput](https://github.com/gortee/pictures/blob/master/D23.PNG)
+
+Breaking it down
     
  
