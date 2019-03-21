@@ -36,7 +36,76 @@ Breaking the command line down we have
 
 # Continue when cluster is listed as succeeded  
 
+#Learning PKS
 
+Login to the cli-vm
+
+See available clusters
+
+    pks clusters
+
+Get my-cluster credentials 
+
+    pks get-credentials my-cluster
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P1.PNG)
+
+
+List all namespaces on your cluster
+
+    pks get ns
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P2.PNG)
+
+As you can see we have the four originally created name spaces
+ - default
+ - kube-public
+ - kube-system
+ - pks-infrastructure
+ 
+ Each of these namespaces have their own NSX-T router to ensure logical seperation.  Let's examine this connection by logging into NSX-T.  
+ 
+ First we need the UUID of the cluster
+ 
+    pks clusters
+ 
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/P3.PNG)
+ 
+ Copy the UUID from the output 
+ 
+ Open Chrome & Click the bookmark for NSX-T Manager
+ 
+ Login to NSX-T
+  - Username: admin
+  - Password: VMware1!
+  
+  Once logged into the system click the magnafying glass at the top right side of the screen.
+  
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P4.PNG)
+   
+  Paste the UUID into the search bar and wait for the search to begin to return results
+  
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P5.PNG)
+ 
+ Click on the name logical routers & expand out the Name from the search results as shown below
+ 
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P6.PNG)
+  
+ As you can see we have a logical router for each namespace and load balancers (lb)
+ 
+ Switch back to the cli-vm and lets create a new namespace
+ 
+     kubectl create ns development
+     
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/P7.PNG)
+ 
+ Looking again in NSX-T on Chrome perform the search again and select logical routers
+ 
+ You can see the creation of the development router for the development name space.
+ 
+  ![DockerOutput](https://github.com/gortee/pictures/blob/master/P8.PNG)
+ 
+ 
      
   
  
