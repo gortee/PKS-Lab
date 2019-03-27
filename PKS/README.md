@@ -117,10 +117,11 @@ As you can see we have the four originally created name spaces
  If you have multiple clusters you can switch between them on the command line using 
  
      kubectl config use-context <cluster-name>
-  
- You will work with storage persistence inside the Kubernetes lab
+
  
- The PKS command line essentially has only commands to create, update, delete Kubernetes clusters.   You can resize a cluster with a single command:
+ The PKS command line essentially has only commands to create, update, delete Kubernetes clusters.   PKS commands are documented here:  https://docs.pivotal.io/runtimes/pks/1-3/managing-clusters.html 
+ 
+ You can resize a cluster with a single command:
  
      kubectl resize my-cluster --num-nodes 4
      
