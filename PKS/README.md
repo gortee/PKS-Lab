@@ -79,15 +79,13 @@ As you can see we have the four originally created name spaces
   - Username: admin
   - Password: VMware1!
   
-  Once logged into the system click the magnafying glass at the top right side of the screen.
-  
-![DockerOutput](https://github.com/gortee/pictures/blob/master/P4.PNG)
-   
-  Paste the UUID into the search bar and wait for the search to begin to return results
+  Once logged into the system locate the search bar at the top of the screen.
+ 
+  Paste the UUID into the search bar and press enter to search.  
   
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/P5.PNG)
  
- Click on the name logical routers & expand out the Name from the search results as shown below
+ Click on the name logical routers tab
  
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/P6.PNG)
   
@@ -105,7 +103,50 @@ As you can see we have the four originally created name spaces
  
   ![DockerOutput](https://github.com/gortee/pictures/blob/master/P8.PNG)
  
+ This automation is made possible via the NCP provider in Kubernetes.  Let's remove our namespace back on the cli:
  
+     kubectl delete ns development
+    
+   ![DockerOutput](https://github.com/gortee/pictures/blob/master/P9.PNG)
+ 
+ Return to the NSX-T console and see that the router for development has been automatically removed.  Using just Kubernetes constructs you can adjust networking on demand without knowledge of the networking constructs.  
+ 
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/P10.PNG)
+ 
+ 
+ If you have multiple clusters you can switch between them on the command line using 
+ 
+     kubectl config use-context <cluster-name>
+  
+ You will work with storage persistence inside the Kubernetes lab
+ 
+ The PKS command line essentially has only commands to create, update, delete Kubernetes clusters.   You can resize a cluster with a single command:
+ 
+     kubectl resize my-cluster --num-nodes 4
+     
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/P11.PNG) 
+ 
+ Log into vCenter in order to watch progress.  
+ 
+ Go to Chrome open a new tab and select the folder RegionA and the bookmark for RegionA vCenter (https://vcsa-01a.corp.local/vsphere-client/?cs)  
+  - Username: administrator@corp.local
+  - Password: VMware1!
+  
+  Once logged in check recent tasks to see PKS in action.  The new additional worker node will be added to Region01->RegionA01-COMP01->pks-comp1.  As you can see in the attributes it is listed as a worker node.
+  
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P12.PNG) 
+ 
+ You can also check the status of this resize via the cli by running:
+ 
+     pks cluster my-cluster
+     
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P13.PNG)
+
+Continue with the lab we will check back on this later in the lab.
+  
+  
+ 
+ # Interacting with Bosh and PKS
      
   
  
