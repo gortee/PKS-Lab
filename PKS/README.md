@@ -153,7 +153,7 @@ Continue with the lab we will check back on this later in the lab.
  
  
  
- #Checking on resizing
+ # Checking on resizing
  
  Lets check on our resizing operation using the pks command line
  
