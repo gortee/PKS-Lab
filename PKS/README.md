@@ -167,3 +167,13 @@ Resize it back to three nodes
     pks resize my-cluster --num-nodes 3
     
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/P15.PNG)
+
+You can monitor it via the 
+
+    pks cluster my-cluster 
+   
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P16.PNG)
+
+You can see it was deleted in vCenter as well
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P17.PNG)
