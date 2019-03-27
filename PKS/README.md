@@ -53,7 +53,7 @@ Get my-cluster credentials
 
 List all namespaces on your cluster
 
-    pks get ns
+    kubectl get ns
     
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/P2.PNG)
 
