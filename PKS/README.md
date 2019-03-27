@@ -151,3 +151,18 @@ Continue with the lab we will check back on this later in the lab.
   
  
  
+ 
+ #Checking on resizing
+ 
+ Lets check on our resizing operation using the pks command line
+ 
+     pks cluster my-cluster
+     
+      
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P14.PNG)
+
+Resize it back to three nodes
+
+    pks resize my-cluster --num-nodes 3
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P15.PNG)
