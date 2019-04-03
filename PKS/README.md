@@ -30,15 +30,13 @@ Breaking the command line down we have
  - external-hostname : DNS hostname to reach the cluster (preloaded into DNS in our case)
  - plan : sets the plan for the initial deployment
  
- The creation of your cluster will take a few minutes while you wait for the cluster to deploy grab some lunch you can check the status of your deployment with this command
+ The creation of your cluster will take a few minutes while you wait for the cluster deployment we will continue the lab with my-cluster that was already deployed you can check the status of your cluster that is deploying using 
  
      pks clusters my-cluster
 
-# Continue when cluster is listed as succeeded  
-
 #Learning PKS
 
-Login to the cli-vm
+Use putty to login to the cli-vm
 
 See available clusters
 
@@ -148,7 +146,19 @@ Continue with the lab we will check back on this later in the lab.
   
  
  # Interacting with Bosh and PKS
-     
+ BOSH provide the key elements of life cycle management for PKS.   Let's examine how BOSH interacts with the environment.  
+ 
+ Open the Chrome web browser and open a new tab locate the bookmark titled Opsman and click it.   Accept the self signed certificate.   If it asks for a decryption password type VMware1! and press enter.   Once presented with a login page login with:
+ - Email: Admin
+ - Password: VMware1!
+ 
+You will be presented with three tiles:
+- BOSH director for vSphere
+- Pivotal container service
+- VMware Harbor registry  
+
+Click on the Pivotal container service tile.  
+ 
   
  
  
@@ -177,3 +187,7 @@ You can monitor it via the
 You can see it was deleted in vCenter as well
 
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/P17.PNG)
+
+# Harbor
+check in image here / login
+
