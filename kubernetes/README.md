@@ -9,7 +9,15 @@ See available clusters
 
 Get credentials for my-cluster
 
-    Get my-cluster credentials 
+    pks get-credentials my-cluster
 
 
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K1.PNG)
+
+Review the worker nodes for PKS cluster my-cluster
+
+    kubectl get nodes
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K2.PNG)
  
+This displays basic data on the worker nodes.  
