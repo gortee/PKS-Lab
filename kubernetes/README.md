@@ -244,6 +244,32 @@ Check progress:
     
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/K28.PNG)   
 
+# Desired state management
+Kubenetes is an orchestrator as illustrated so far ensuring it meets our requirements it is also a desired state management tool.   In order to illustrate this we are going to delete a pod inside our deployment.   Remember that we set this deployment to have two pods you can see the desired state using this command:
+
+    kubectl get service bootcamp
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K29.PNG) 
+
+We expect two pods.   Let's remove one of the pods:
+
+    kubectl get pods
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K30.PNG) 
+
+Select a name of a pod inside your list I am going to use bootcamp-f54cfd479-76ngz.  
+
+    kubectl delete pod bootcamp-f54cfd479-76ngz
+
+Let's see that pod get removed:
+
+    kubectl get pods
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K31.PNG) 
+
+As shown I now have a new pod automatically recreated by Kubernetes to satisfy my desired state of two pods (in my case bootcamp-f54cfd479-xfmsz is the new pod)  Just in case your wondering the new pod was added to the service / load balancer and the old pod was removed (unless it just took over the old IP address)
+
+    
 
 
 
