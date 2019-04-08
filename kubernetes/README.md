@@ -103,7 +103,92 @@ This shows a lot of information on the pod (not individual image)  for example l
      
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/K14.PNG)
 
-Adding services is a key element to exposing services to the outside world.   We can do this via the services command set.  Remember you can expose services via NodePort, LoadBalancer or ClusterIP (internal only).   NSX-T provides the functionality to provision load balancers on demand as needed from the Kubernetes command line or API.   To create a LoadBalanced service for our deployment type the following command:
+# Services
+
+Adding services is a key element to exposing services to the outside world.   We can do this via the services command set.  Remember you can expose services via NodePort, LoadBalancer or ClusterIP (internal only).   NSX-T provides the functionality to provision load balancers on demand as needed from the Kubernetes command line or API.   First examine the current services:
+
+    kubectl get services
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K15.PNG)
+
+It shows the loadbalancer currently provisioned for access to the Kubernetes API (master/etcd) (NAME: kubernetes TYPE: ClusterIP)
+
+To create a LoadBalanced service for our deployment type the following command:
+
+    kubectl expose deployment/bootcamp --type=LoadBalancer --port 8080
+    
+Let's review the services available now that we have created a new LoadBalancer for deployment/bootcamp:
+
+   kubectl get services
+   
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K16.PNG)
+
+You now have a new LoadBalancer for bootcamp with the following information:
+- Cluster-IP (internal) : 10.100.200.103 internal way to access the loadbalancer for c&c
+- External-IP : 10.40.14.42,100.64.96.7 the first address is the external IP to access this service the second is a routing IP address.
+
+Let's try accessing our deployment on your IP address (mine is 10.40.14.42) open the web browser and navigate to http://{your-external-ip:8080.   
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K17.PNG)
+
+The tight integration between NSX-T and Kubernetes makes this possible.  Login to NSX manager by opening an additional tab in Chrome and clicking on the NSX-T Manager icon.  
+- Username: admin
+- Password: VMware1!
+
+Once logged in:
+- Click Load Balancers in middle of the screen
+- Click on the Virtual Servers tab
+- Review the list of virtual servers and locate the one called default-bootcamp (denotes that it's default namespace and called bootcamp service)   
+
+Return to the cli-vm console.  For additional details on the bootcamp service use the following command:
+
+    kubectl describe service bootcamp
+   
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K18.PNG)
+
+# Labels
+Labels are metadata that allow you to group machines or apply policies dynamically.   Our deployment has a label assigned at creation time called run=bootcamp this is assigned to the pod, deployment & service.   You can see labels assigned to resources using the describe command.   Labels are in the form of designation=element for example version=1.  Let's get pods & services with the label.  
+
+    kubectl get pods -l run=bootcamp
+
+    kubectl get services -l run=bootcamp
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K19.PNG)
+
+We can assign a label to a resource for example the service using this command syntax:
+
+    kubectl label service bootcamp app=v1
+
+Let's return all the services with this label:
+
+    kubectl get services -l app=v1
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K20.PNG)
+
+# Scale a deployment
+Let's assume that at different times of the year your will need additional pods to service your requests.  This is handled very well by Kubernetes.  We have a external LoadBalancer that has awareness of the pods so we simply deploy additional pods.  In order to scale from one pod to 4 we issue the following command:
+
+    kubectl scale deployments/bootcamp --replicas=4
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K21.PNG)
+
+Looking at the deployment and pods we should now have additional replicas of the image:
+
+    kubectl get pods
+    
+    kubectl get deployments 
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K22.PNG)
+
+If you return to the NSX-T console in Chrome you can select the Service Pool tab to show the backend containers now included in the pool for the load balancer.  It clearly denotes 4 members.  Click on the 4 to see the pod names.   
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K23.PNG)
+
+Go to the Chrome tab for your LoadBalancer service and reload to see if the pod name changes.  (It may not because it assigns you a pool member when first connection is established and does not change until session is ended)
+
+Return to cli-vm. 
 
 
- 
+
+
+
