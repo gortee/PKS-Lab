@@ -188,6 +188,61 @@ Go to the Chrome tab for your LoadBalancer service and reload to see if the pod 
 
 Return to cli-vm. 
 
+You can get detailed information on the four pods using this command:
+
+    kubectl get pods -o wide
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K24.PNG)
+
+Describing the service will show how each of the invidiual pods are now part of the service:
+
+    kubectl describe service bootcamp
+
+Scaling down is easy and non-interruptive as well using the following command we can scale down to 2 pods:
+
+    kubectl scale deployments/bootcamp --replicas=2
+    
+You can track progress with this command:
+
+    kubectl get pods
+    
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/K25.PNG)
+ 
+ # Update the application
+ One of the super powers of Kubernetes is the ability to update an application dynamically without interruption.  For this we will update the image to a new version without customer interruption (remember we have two pods).   
+ 
+ Start by updating the image to be used by the deployment:
+ 
+     kubectl set image deployments/bootcamp bootcamp=jocatalin/kubernetes-bootcamp:v2
+     
+ This will automatically update the image one at a time.  You will have to type the following commands fast to catch the state of the old containers.   
+ 
+    kubectl get pods
+    kubectl describe services/bootcamp
+    kubectl rollout status deployments/bootcamp
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K26.PNG)   
+
+Return to the web browser window for our application and reload to see the version change to v2
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K27.PNG)   
+
+# Roll back the application
+We can also rollback the V2 application to V1 very quickly.  
+
+Set the image for the deployment:
+
+    kubectl set image deployments/bootcamp bootcamp=gcr.io/google-samples/kubernetes-bootcamp:v1
+    
+Do the rollout command:
+
+    kubectl rollout undo deployments/bootcamp
+
+Check progress:
+
+    kubectl get pods
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K28.PNG)   
 
 
 
