@@ -269,7 +269,35 @@ Let's see that pod get removed:
 
 As shown I now have a new pod automatically recreated by Kubernetes to satisfy my desired state of two pods (in my case bootcamp-f54cfd479-xfmsz is the new pod)  Just in case your wondering the new pod was added to the service / load balancer and the old pod was removed (unless it just took over the old IP address)
 
-    
 
+# Clean up 
+Operating micro-services one command at a time is not normal for Kubernetes but has allowed us to step through operation.  Let's clean up the deployment and service.   
 
+    kubectl delete service bootcamp
+    kubectl delete deployment bootcamp
+
+Over time this will remove all resources including pods.   (Yes the virtual server will be cleaned up as well).  
+
+# WordPress
+While Wordpress is not a micro-service it does allow us to show the power of Kubernetes.   One of the key challenges of the docker wordpress was the lack of persistent storage.   VMware implements storage persistence using Project Hatchway (https://vmware.github.io/hatchway/) this allows us to create a MySQL container with persistent storage.   This is critical if the container or worker node fails the storage will persist and be reconnected to the image recreated by Kubernetes as shown below:
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K32.PNG)
+
+In this tutorial we will begin to work with much more complex constructs inside YAML files.   You can chain whole micro-services inside a single YAML file for ease of use.   The first thing we need to do is create a secret inside Kubernetes as the password for the database.  By using this method we avoid having hard coded passwords in the YAML files.  
+
+    kubectl create secret generic mysql-pass --from-literal=password=YOUR_PASSWORD
+
+Examine this command:
+ - create secret : action
+ - generic : type of password
+ - mysql-pass : name of secret for reference in YAML
+ - --from-literal=password=YOUR_PASSWORD  password is the variable and YOUR_PASSWORD is the password
+ 
+ We can now create additional constructs using the kubectl create -f (-f for file) command.   We need to create a storage class inside Kubernetes that allows our YAML files to access project Hatchway.   Hatchway will dynamically create VMDK files on VMware cluster file system on demand.   In order to save you massive typing we are going to use the repository you downloaded:
+ 
+    cd /root/PKS-Lab/kubernetes/wordpress
+ 
+ We will be implementing the file storage_class.yaml which contains the following:
+ 
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/K33.PNG)
 
