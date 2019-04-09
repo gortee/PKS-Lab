@@ -22,7 +22,7 @@ We will review the plan details post starting the deployment of a cluster
 
 Deploy a small cluster with the following command:
 
-    pks create-cluster my-cluster --external-hostname my-cluster.corp.local --plan small
+    pks create-cluster throwaway --external-hostname throwaway.corp.local --plan small
   
 Breaking the command line down we have
  - create-cluster : pks command to execute
@@ -149,7 +149,7 @@ Continue with the lab we will check back on this later in the lab.
  BOSH provide the key elements of life cycle management for PKS.   Let's examine how BOSH interacts with the environment.  
  
  Open the Chrome web browser and open a new tab locate the bookmark titled Opsman and click it.   Accept the self signed certificate.   If it asks for a decryption password type VMware1! and press enter.   Once presented with a login page login with:
- - Email: Admin
+ - Email: admin
  - Password: VMware1!
  
 You will be presented with three tiles:
@@ -159,10 +159,112 @@ You will be presented with three tiles:
 
 Click on the Pivotal container service tile.  
  
-  
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P18.PNG) 
+
+On the left you will see the configuration variables used to setup PKS via Opsman.   These can be changed and then Opman will rollout the changes.   Let's take a look at the plans on the left side by clicking plan 1.  
+
+This should display the small plan details including number of Master nodes (never use 1 unless it's poc) & number of worker nodes and sizing.  
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P19.PNG) 
+
+As show the number of worker nodes can be changed once deployed using the PKS command line this only denotes sizing and initial state. Do not change anything in here!  Feel free to review plan 2 for the medium.  Remember you can see the plans in the cli-vm using (pks plans)    
+
+Click on the Kubernetes Cloud Provider to see the vCenter connection and Networking to see the NSX-T connection.   You can explore the other tabs to better understand the deployment.   
+
+Changes made to PKS tile can be reviewed and deployed.  Everything in BOSH has a smoketest to identify potential functionality problems with deployments.  If you fat finger something inside the tile the change will not be deployed.   
+
+One of the great strengths of BOSH is it provides desired state management for Kubernetes which means if a worker node fails it corrects the issue.   This is true for master nodes assuming you have more than one deployed.  In our case we only have one master node so we will not simulate a failure of the master node.   
+
+Login to vSphere using Chrome:
+- Click on the RegionA Folder
+- Click on RegionA vCenter
+- Login with
+  - Username: administrator@corp.local
+  - Password: VMware1!
+- Wait for the console to load up
+- Expand RegionA01
+- Expand RegionA01-COMP01
+- Expand pks-comp-1
+- Click on the a virtual machine (vm-ID)
+- Click on the Summary Tab 
+- Scroll down on Custom Attributes looking for job
+- Choose different virtual machines until you identify a job that is worker
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P20.PNG) 
+
+This is a worker nodes in your cluster.  Make sure you have a worker node selected.  We are going to power it down to simulate a worker node failure.  
+
+- Right click on the VM
+- Highlight Power
+- Select Power off
+- Confirm you want to power it off
+- Expand recent tasks on the right side to show it has been powered off
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P21.PNG)
+
+This will take a little time for PKS to identify it as failed and take action but it will remove the old virtual machine and provision a new worker node.  You can continue to monitor via the recent tasks for the replacement to complete.   
  
+ # Harbor
+Harbor is an open source repository that provides image security scanning and reporting.  Harbor organizes images into a set of projects and repositories within those projects. Repositories can have one or more images associated with them. Each of the images are tagged. Projects can have RBAC (Role Based Access Control) and replication policies associated with them so that administrators can regulate access to images and create image distribution pipelines across registries that might be geographically dispersed. You should now be at a summary screen that shows all of the projects in this registry. For our lab, we are interested in a single project called library.
+
+In order to use harbor you need to setup secure communications between harbor and your virtual machine.   Follow these instructions (https://github.com/CNA-Tech/PKS-Ninja/tree/master/LabGuides/HarborCertExternal-HC7212)
+
+Once you have the certificates completed return to this lab.
+
+Login to Harbor
+- Go to Chrome
+- Locate the Harbor.corp.local bookmark or type (https://harbor.corp.local/harbor/sign-in)
+- Login to harbor using
+  - Username: admin
+  - Password: VMware1!
+
+Once logged into Harbor you can see a project name library that already exists.  Click on library to explore the elements that comprise a library.  Click the following tabs and read the options:
+
+- Members -  RBAC Access controls
+- Replication - Ability to replicate images across multiple repositories
+- Labels - Metadata assigned
+- Configuration - Security options (public or private, deployment security controls, image scanning)
  
- 
+Click on the Projects tab to return to the login screen. 
+
+Let's create a new project for one of our docker images.  
+
+- Left click on + New Project
+- Type trusted for the project name
+- Click OK (accepting default access level)
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P28.PNG)
+
+- Left click on trusted project
+- Left click on the Configuration tab
+- Enable the following
+   - Enable content trust
+   - Automatically scan images on push
+- Click on Save
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P29.PNG)
+
+Return to the cli-vm putty window.  We are going to check in our first docker image into Harbor.  
+
+    cd /root/PKS-Lab/docker/first
+
+Build the docker image again
+
+    docker build .
+    
+Copy the image ID from the last line of the build command (mine is ee3cc31c901b)
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P30.PNG)
+
+From the cli-vm prompt, update the image tag and push to harbor with the following commands - be sure to replace the value ee3cc31c901b in the docker tag command below with the tag value you gathered in the previous step
+
+    docker tag ee3cc31c901b harbor.corp.local/library/ping:v1
+    docker login harbor.corp.local
+     - User Name: admin
+     - Password: VMware1!
+    docker push harbor.corp.local/library/ping:v1
+
+
  # Checking on resizing
  
  Lets check on our resizing operation using the pks command line
@@ -188,6 +290,62 @@ You can see it was deleted in vCenter as well
 
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/P17.PNG)
 
-# Harbor
-check in image here / login
+# Check on Throwaway cluster
+Let's check the status of the throwaway cluster we created in the cli-vm.  
 
+    pks clusters
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P22.PNG)
+
+Once succeed we cab login to the cluster and create a namespace.   Remember this is a completely seperate cluster with a completely different potential user base.  
+
+In this way (assuming DNS is configured) you can have seperate Kubernetes clusters all managed by PKS to allow role seperation.   You can implement rolling upgrades from the PKS API or command line across all clusters thus reducing the time required to do day two operations.   Let's configure DNS so we can test our throwaway cluster.   
+
+First identify the IP address for the throwaway cluster with 
+
+    pks cluster throwaway
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P24.PNG)  
+
+As shown my cluster IP is 10.40.14.42 (yours may be different)
+
+- Click on the Windows Start icon
+- Type DNS
+- Click on the DNS icon
+- Expand Forward Lookup Zones
+- Expand corp.local
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P23.PNG)
+
+- Right click on corp.local
+- Left click on New host (a or aaaa) record
+- Type the name throwaway
+- Type the ip address learned in last step (mine is 10.40.14.42)
+- Click Add host
+
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/P25.PNG)  
+ 
+ Now let's try to login to the cluster and create a namespace.  
+ 
+     pks get-credentials throwaway
+     
+ This should log us into throwaway.corp.local
+ 
+ Let's see the namespaces created by default in our new cluster
+ 
+     kubectl get namespaces
+     
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P26.PNG)
+  
+  Creating a new namespace is simple
+  
+      kubectl create namespace test
+      kubectl get namespaces
+ 
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P27.PNG)
+
+As shown before this cluster and namespace has it's own routing and Kubernetes cluster independant of my-cluster.   For resource constraint purposes we need to remove the throwaway cluster.
+
+    pks delete-cluster throwaway
+    
+This command will remove and cleanup everything about the cluster except the DNS record you manually created.   
