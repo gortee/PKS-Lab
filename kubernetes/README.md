@@ -532,6 +532,14 @@ Switch to Chrome and go to the Loadbalancer IP for your application (mine is 10.
 
 Reload a few times and notice how the host and ip at the top change.  
 
+# Cleanup
+To cleanup planespotter (it uses a lot of memory) do the following:
+
+    kubectl delete --all deployments --namespace=planespotter
+    kubectl delete --all services --namespace=planespotter
+    kubectl delete namespace planespotter
+    kubectl config set-context my-cluster --namespace default
+    
 
 # Strech goals
 If you have available extra time try to achieve one of these stretch goals:
