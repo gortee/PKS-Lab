@@ -264,6 +264,86 @@ From the cli-vm prompt, update the image tag and push to harbor with the followi
      - Password: VMware1!
     docker push harbor.corp.local/library/ping:v1
 
+If docker login fails with "Error response from daemon: Get https://harbor.corp.local/v2/: x509: certificate signed by unknown authority", you need to prepare the cli-vm docker engine configuration with the Harbor certificate, as documented in the Installing Harbor Cert on External Clients Lab Guide
+
+Log into the Harbor UI and navigate to Projects > library and click on library/ping to see the image you built and pushed to Harbor in the previous steps.
+
+On the library/ping repo page, place your mouse over the copy icon in the Pull Command column, you should see a popup that shows the command to pull the image as shown in the screenshots below. Click on the copy icon in the Pull Command column to copy this command to the clipboard
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P31.PNG)
+
+From the cli-vm prompt, delete the local copy of the frontend container with the command docker rmi harbor.corp.local/library/ping:v1 and verify the image has been deleted with the command docker images
+
+    docker rmi harbor.corp.local/library/ping:v1
+    docker images
+    
+From the cli-vm pull down the docker image from harbor with the command:
+
+    docker pull harbor.corp.local/library/ping:v1
+    docker images
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P32.PNG)
+
+# Harbor Content trust & Scanning
+The content trust feature allows admins to require that images be signed in order for the container to run, enabling a business process to be used where only images that meet policy requirements are signed and able to be deployed from repositories where content trust is enabled.  We enabled content trust and scanning on the trusted project.  
+
+From the cli-vm prompt, update the image tag to prepare the ping:v1 image for upload to the trusted repository and push to harbor with the following commands:
+
+    docker tag harbor.corp.local/library/ping:v1 harbor.corp.local/trusted/ping:v1
+    docker push harbor.corp.local/trusted/ping:v1
+
+Let's scan this image by navigating to the Harbor UI Projects -> library -> repositories -> trusted/ping.  Select the checkbox next to v1 and choose to scan it. Once this is completed you can mouse over the vilnerability line to identify any concerns from the scan.  Navigate to Projects > trusted and click on trusted/ping to see the image you built and pushed to Harbor in the previous steps. Observe that the vulnerability scan has already been completed, which is because you enabled the Automatically scan images on push feature when you created the trusted project
+
+From the cli-vm prompt, delete all local copies of the frontend container image and verify the image has been deleted with the command docker images
+
+    docker rmi harbor.corp.local/trusted/ping:v1
+    docker images
+    
+From the cli-vm prompt, enter the command docker pull harbor.corp.local/trusted/ping:v1. You should now see an error message indicating the unsigned image is blocked from being downloaded, as shown in the following screenshot
+
+    docker pull harbor.corp.local/trusted/ping:v1
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P33.PNG)
+
+ From cli-vm configure environmental variables that enable the docker client to validate signed images with Harbor
+
+    export DOCKER_CONTENT_TRUST_SERVER=https://harbor.corp.local:4443
+    export DOCKER_CONTENT_TRUST=1
+    
+From the cli-vm prompt, enter the command docker pull harbor.corp.local/trusted/ping:v1. Observe that despite enabling content trust on the client, you are still prevented from downloading the image, which is because the image itself was never signed
+
+    docker pull harbor.corp.local/trusted/ping:v1
+    
+From the cli-vm prompt, download a local unsigned copy of the ping ping:v1 image from the library/ping repository on harbor. (NOTE: you may need to set DOCKER_CONTENT_TRUST to 0 in order to download from the library, set it back to 1 when download is complete: export DOCKER_CONTENT_TRUST=0) Update the tag to prepare for uploading to the trusted project where content trust is enabled. Note that when after you enter the push command, you will be prompted to enter passphrases for image signing, use the passphrase VMware1!
+
+    export DOCKER_CONTENT_TRUST=0
+    docker pull harbor.corp.local/library/ping:v1
+    export DOCKER_CONTENT_TRUST=1
+    docker tag harbor.corp.local/library/ping:v1 harbor.corp.local/trusted/ping:v2
+    docker push harbor.corp.local/trusted/ping:v2
+
+While you are still pushing the same unsigned image to harbor, because you enabled content trust on the cli-vm docker client, it will automatically sign an image when pushed
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P34.PNG)
+
+You can see the new v2 image in the trusted project.   
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/P35.PNG)
+
+
+Delete all local copies of the image 
+
+    docker rmi harbor.corp.local/trusted/ping:v2
+
+Download the secured and signed version from harbor
+
+    docker pull harbor.corp.local/trusted/ping:v2
+    
+Observe you are now able to download the signed image from the trusted repository with content trust restrictions enabled. Enter Docker images to verify that the frontend:v2 image is now in your local image cache.
+
+Clean up by setting trust to 0 
+
+    export DOCKER_CONTENT_TRUST=0
 
  # Checking on resizing
  
