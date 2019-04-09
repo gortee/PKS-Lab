@@ -1,5 +1,5 @@
 # Kubernetes-Lab 
-# Basic Kubernetes
+# Learning Kubernetes
 
 Login to the cli-vm by using putty and selecting cli-vm  
 
@@ -301,3 +301,114 @@ Examine this command:
  
  ![DockerOutput](https://github.com/gortee/pictures/blob/master/K33.PNG)
 
+In detail
+ - kind: StorageClass - denotes a storage class entry
+ - apiVersion: storage.k8s.io/v1 - denotes what API applies to this entry
+ - name: thin-disk - denotes the reference name of this storage class
+ - provisioner: kubernetes.io/vsphere-volume - denotes that we are going to use a vsphere-volume exposed by Hatchway
+ - diskformat: thin - is a feature exposed by Hatchway from the storage system than means it will be thin provisioned
+ 
+Execute the storage class:
+
+    kubectl create -f storage_class.yaml
+
+You can view the storage class using
+
+    kubectl get storageclass
+    
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K34.PNG)
+
+Or details using 
+
+    kubectl describe storageclass thin-disk
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K35.PNG)
+
+Now lets create the mysql instance along with the persistent volume using wp_mysql.yaml which contains a service definition:
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K36.PNG)
+
+In Detail:
+ - name: wordpress-mysql - name of the service
+ - labels: - metadata
+ - port: 3306 - exposed port
+ - selector: app: wordpress tier: mysql - how to choose what should be part of the service (label app=wordpress tier=mysql)
+ 
+PersistentVolumeClaim for MySQL data (VMDK to be created for persistent data):
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K37.PNG)
+
+In Detail:
+ - name: mysql-pv-claim - name of volume
+ - labels - metadata
+ - annotations - like labels key value pairs used to select objects (labels are used to list objects)
+ - spec: - specifics to the volume exposed by the provider
+ 
+A Deployment:
+
+![DockerOutput](https://github.com/gortee/pictures/blob/master/K38.PNG)
+
+In Detail:
+ - Lots of data on the deployment
+ - Spec: - contains the image and setup information including the secret from above
+ - Ports: - exposed listen port --port from command line
+ - VolumeMounts: - Location and volume to use for the persistent volume
+ 
+Create the mysql deployment and service using this command:
+
+    kubectl create -f wp_mysql.yaml
+ 
+You can list the specifics of the created entity with:
+
+    kubectl get deployments
+    kubectl get service
+    kubectl get pods
+    
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/K39.PNG)
+  
+  We can now create the Wordpress apache setup using the wp.yaml which includes a service:
+  
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/K40.PNG)
+ 
+ In detail:
+  - name: wordpress - service name
+  - port: 80 - listening port
+  - selector - which app to use as pool members
+  - type : LoadBalancer - deploy a virtual server with external access instead of NodePort or ClusterIP
+
+A PersistentVolume for the wordpress site because some data is stored locally like pictures:
+
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/K41.PNG)
+
+A deployment:
+
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/K42.PNG)
+ 
+Some details:
+ - env: - sets some environment details including the container name for the database (wordpress-mysql) allowing connection
+ 
+Start up your wordpress apache service and deployment with:
+
+    kubectl create -f wp.yaml
+    
+You can see the output of the command with:
+
+    kubectl get service
+    kubectl get deployment
+    kubectl get pods
+    
+  ![DockerOutput](https://github.com/gortee/pictures/blob/master/K43.PNG)
+  
+  Once created we can visit the IP address from our wordpress LoadBalancer (in my case 10.40.14.41) via Chrome to see this:
+  
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/K44.PNG)
+ 
+ You can remove the wordpress setup with the following commands (using labels):
+ 
+    kubectl delete deployment -l app=wordpress
+    kubectl delete service -l app=wordpress
+    kubectl delete pvc -l app=wordpress
+
+# Micro-services application
+In this execercise you will deploy a true micro-services application called plane-spotter.   
+    
