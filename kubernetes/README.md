@@ -89,7 +89,7 @@ This shows a lot of information on the pod (not individual image)  for example l
 
     ping -c 3 {ip_Address}
     
- ![DockerOutput](https://github.com/gortee/pictures/blob/master/K12.PNG)
+ ![DockerOutput](https://github.com/gortee/pictures/blob/master/k12.PNG)
  
  Let examine the logs from the pod using your pod name (mine is bootcamp-95bd888fc-pc2pq)
  
