@@ -121,7 +121,7 @@ As you can see we have the four originally created name spaces
  
  You can resize a cluster with a single command:
  
-     kubectl resize my-cluster --num-nodes 4
+     pks resize my-cluster --num-nodes 4
      
  ![DockerOutput](https://github.com/gortee/pictures/blob/master/P11.PNG) 
  
@@ -322,7 +322,7 @@ From the cli-vm prompt, download a local unsigned copy of the ping ping:v1 image
     docker tag harbor.corp.local/library/ping:v1 harbor.corp.local/trusted/ping:v2
     docker push harbor.corp.local/trusted/ping:v2
 
-While you are still pushing the same unsigned image to harbor, because you enabled content trust on the cli-vm docker client, it will automatically sign an image when pushed
+While you are still pushing the same unsigned image to harbor, because you enabled content trust on the cli-vm docker client, it will automatically sign an image when pushed (Use the password VMware1!)
 
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/P34.PNG)
 
