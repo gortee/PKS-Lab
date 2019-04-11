@@ -185,15 +185,15 @@ Let's try to ping the second container by name
 
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/D20.PNG)
 
-Let's try to ping by IP address
+Let's try to ping by IP address (replace with your ip address)
 
-    ping -c 3 172.21.0.3
+    ping -c 3 {ip_address}
     
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/D21.PNG)
 
 Being able to reference the container via name has a huge benefit in dynamic environments.   Let's try to ping one of the containers on our bridge network my_container (172.17.0.2/16) or my_web_server (172.17.0.3/16).  
 
-    ping -c 3 172.17.0.2
+    ping -c 3 {ip_address}
     ping -c my_container
     
  ![DockerOutput](https://github.com/gortee/pictures/blob/master/D22.PNG)
