@@ -530,7 +530,10 @@ Switch to Chrome and go to the Loadbalancer IP for your application (mine is 10.
 
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/K53.PNG)
 
-Reload a few times and notice how the host and ip at the top change.  
+Reload a few times and notice how the host and ip at the top change.  While you have the application setup lets locate all the 737 planes.  
+
+- Click on US Aircraft Registry
+- In the aircraft model type 737 and search
 
 # Cleanup
 To cleanup planespotter (it uses a lot of memory) do the following:
