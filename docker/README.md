@@ -173,7 +173,7 @@ Let's examine the dev_network in detail
     
 ![DockerOutput](https://github.com/gortee/pictures/blob/master/D14.PNG)
 
-As you can see we now have two containers attached to the dev_network ping1(172.21.0.2/16) & ping2(172.21.0.3/16) Let's test communication between the containers.  Let's attach to the console one ping1 (which is possible because it's running the ash shell) keep in mind that in order to detach from the console you will want to use CTRL-P+CTRL-Q (failure to do this control sequence will terminate the container)
+As you can see we now have two containers attached to the dev_network ping1(172.21.0.2/16) & ping2(172.21.0.3/16) Let's test communication between the containers.  Let's attach to the console one ping1 (which is possible because it's running the ash shell) keep in mind that in order to detach from the console you will want to use CTRL-P+CTRL-Q (failure to do this control sequence will terminate the container). To pass this, you have to use the virtual keyboard. Go to start button (Windows), and search for `on-screen` and it will bring up the virtual keyboard.
 
     docker container attach ping1
     
