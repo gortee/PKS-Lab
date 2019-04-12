@@ -113,7 +113,7 @@ Lets examine this command line
 
 `nginx : docker hub image to use`
 
-You can visit port 8080 on URL to see if nginx is working
+Go to the browser and type in the URL: `CLI-VM:8080` to see if nginx is working.
 
 By default both of these containers are connected to the bridge docker network.   (Docker creates three networks when started: bridge, host, none)  Everything inside a network is able to communicate with each other and the host is able to communicate with all.   
 
